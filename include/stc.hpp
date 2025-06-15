@@ -27,7 +27,7 @@ SOFTWARE.
 
 namespace stc {
 
-enum _color_modes { COLOR_256 = 0, TRUE_COLOR = 1, NO_COLOR = 2 };
+enum _color_modes : std::int8_t { COLOR_256 = 0, TRUE_COLOR = 1, NO_COLOR = 2 };
 
 inline int _get_color_mode_index() {
   static const int i = std::ios_base::xalloc();
