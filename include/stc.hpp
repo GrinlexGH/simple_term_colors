@@ -360,7 +360,7 @@ constexpr std::uint8_t _find_closest_color_code(int r, int g, int b) {
   return _256colors[best_index].code;
 }
 
-constexpr void _hsl_to_rgb(float h, float s, float l, int &r, int &g, int &b) {
+constexpr void _hsl_to_rgb(float h, float s, float l, std::uint8_t &r, std::uint8_t &g, std::uint8_t &b) {
   auto fmod = [](float number, int divisor) {
     const int i = (int)number;
     return (float)(i % divisor) + (number - (float)i);
@@ -374,7 +374,7 @@ constexpr void _hsl_to_rgb(float h, float s, float l, int &r, int &g, int &b) {
 
   // (https://en.wikipedia.org/wiki/HSL_and_HSV#Color_conversion_formulae)
   if (s == 0) {
-    r = g = b = round(l * 255);
+    r = g = b = (std::uint8_t)round(l * 255);
     return;
   }
   const float alpha = s * std::min(l, 1 - l);
@@ -382,9 +382,9 @@ constexpr void _hsl_to_rgb(float h, float s, float l, int &r, int &g, int &b) {
     const float k = fmod((n + (h * 12)), 12);
     return l - (alpha * std::max(-1.0F, std::min({k - 3, 9 - k, 1.0F})));
   };
-  r = round(f(0) * 255);
-  g = round(f(8) * 255);
-  b = round(f(4) * 255);
+  r = (std::uint8_t)round(f(0) * 255);
+  g = (std::uint8_t)round(f(8) * 255);
+  b = (std::uint8_t)round(f(4) * 255);
 }
 
 constexpr void _clamp(int &a, int min, int max) {
@@ -459,15 +459,15 @@ constexpr _color_code<false> rgb_bg(int r, int g, int b) {
 }
 
 constexpr _color_code<true> hsl_fg(float h, float s, float l) {
-  int r = 0, g = 0, b = 0;
+  std::uint8_t r = 0, g = 0, b = 0;
   _hsl_to_rgb(h, s, l, r, g, b);
-  return {(std::uint8_t)r, (std::uint8_t)g, (std::uint8_t)b, _find_closest_color_code(r, g, b)};
+  return {r, g, b, _find_closest_color_code(r, g, b)};
 }
 
 constexpr _color_code<false> hsl_bg(float h, float s, float l) {
-  int r = 0, g = 0, b = 0;
+  std::uint8_t r = 0, g = 0, b = 0;
   _hsl_to_rgb(h, s, l, r, g, b);
-  return {(std::uint8_t)r, (std::uint8_t)g, (std::uint8_t)b, _find_closest_color_code(r, g, b)};
+  return {r, g, b, _find_closest_color_code(r, g, b)};
 }
 
 constexpr _color_code<true> code_fg(int code) {
