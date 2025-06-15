@@ -36,8 +36,8 @@ inline int _get_color_mode_index() {
 
 class _color_data {
 public:
-  unsigned int r : 8, g : 8, b : 8, code : 8;
-  constexpr _color_data(int r, int g, int b, int code)
+  std::uint8_t r, g, b, code;
+  constexpr _color_data(std::uint8_t r, std::uint8_t g, std::uint8_t b, std::uint8_t code)
       : r(r), g(g), b(b), code(code){};
 };
 
@@ -50,10 +50,12 @@ inline std::ostream &operator<<(std::ostream &os,
                                 const _color_code<true> &color_code) {
   const long mode = os.iword(_get_color_mode_index());
   if (mode == _color_modes::COLOR_256)
-    os << "\033[38;5;" << color_code.code << 'm';
+    os << "\033[38;5;" << (int)color_code.code << 'm';
   else if (mode == _color_modes::TRUE_COLOR)
-    os << "\033[38;2;" << color_code.r << ';' << color_code.g << ';'
-       << color_code.b << 'm';
+    os << "\033[38;2;"
+       << (int)color_code.r << ';'
+       << (int)color_code.g << ';'
+       << (int)color_code.b << 'm';
   return os;
 }
 
@@ -62,10 +64,12 @@ inline std::ostream &operator<<(std::ostream &os,
                                 const _color_code<false> &color_code) {
   const long mode = os.iword(_get_color_mode_index());
   if (mode == _color_modes::COLOR_256)
-    os << "\033[48;5;" << color_code.code << 'm';
+    os << "\033[48;5;" << (int)color_code.code << 'm';
   else if (mode == _color_modes::TRUE_COLOR)
-    os << "\033[48;2;" << color_code.r << ';' << color_code.g << ';'
-       << color_code.b << 'm';
+    os << "\033[48;2;"
+       << (int)color_code.r << ';'
+       << (int)color_code.g << ';'
+       << (int)color_code.b << 'm';
   return os;
 }
 
@@ -340,7 +344,7 @@ constexpr float _color_distance(int r, int g, int b, _color_data color) {
           (blue_difference * blue_difference));
 }
 
-constexpr int _find_closest_color_code(int r, int g, int b) {
+constexpr std::uint8_t _find_closest_color_code(int r, int g, int b) {
   // for dark colors we return black, the cutoff values are arbitrary but
   // prevent artifacting from redmean color distance approximation
   if (r < 20 && g < 15 && b < 15)
@@ -446,26 +450,24 @@ inline std::ostream &reset_bg(std::ostream &os) {
 
 constexpr _color_code<true> rgb_fg(int r, int g, int b) {
   _clamp_rgb(r, g, b);
-  return {r, g, b, _find_closest_color_code(r, g, b)};
+  return {(std::uint8_t)r, (std::uint8_t)g, (std::uint8_t)b, _find_closest_color_code(r, g, b)};
 }
 
 constexpr _color_code<false> rgb_bg(int r, int g, int b) {
   _clamp_rgb(r, g, b);
-  return {r, g, b, _find_closest_color_code(r, g, b)};
+  return {(std::uint8_t)r, (std::uint8_t)g, (std::uint8_t)b, _find_closest_color_code(r, g, b)};
 }
 
 constexpr _color_code<true> hsl_fg(float h, float s, float l) {
   int r = 0, g = 0, b = 0;
   _hsl_to_rgb(h, s, l, r, g, b);
-  _clamp_rgb(r, g, b);
-  return {r, g, b, _find_closest_color_code(r, g, b)};
+  return {(std::uint8_t)r, (std::uint8_t)g, (std::uint8_t)b, _find_closest_color_code(r, g, b)};
 }
 
 constexpr _color_code<false> hsl_bg(float h, float s, float l) {
   int r = 0, g = 0, b = 0;
   _hsl_to_rgb(h, s, l, r, g, b);
-  _clamp_rgb(r, g, b);
-  return {r, g, b, _find_closest_color_code(r, g, b)};
+  return {(std::uint8_t)r, (std::uint8_t)g, (std::uint8_t)b, _find_closest_color_code(r, g, b)};
 }
 
 constexpr _color_code<true> code_fg(int code) {
