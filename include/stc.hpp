@@ -25,6 +25,7 @@ SOFTWARE.
 #pragma once
 #include <ostream>
 #include <cstdint>
+#include <algorithm>
 
 namespace stc {
 
